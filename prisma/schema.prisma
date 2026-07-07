@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  REVIEWER
+  ADMIN
+}
+
+enum ActorRole {
+  APPLICANT
+  REVIEWER
+  ADMIN
+  SYSTEM
+}
+
+enum CaseStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ADDITIONAL_INFO_REQUIRED
+  VERIFIED
+  REJECTED
+}
+
+enum DocumentType {
+  ID_CARD
+  PASSPORT
+  PROOF_OF_ADDRESS
+}
+
+model Applicant {
+  id           String             @id @default(uuid())
+  email        String             @unique
+  passwordHash String
+  fullName     String
+  dateOfBirth  DateTime
+  cases        VerificationCase[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model Reviewer {
+  id           String             @id @default(uuid())
+  email        String             @unique
+  passwordHash String
+  role         Role               @default(REVIEWER)
+  cases        VerificationCase[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model VerificationCase {
+  id              String       @id @default(uuid())
+  applicantId     String
+  reviewerId      String?
+  status          CaseStatus   @default(DRAFT)
+  rejectionReason String?
+  documents       Document[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  applicant       Applicant    @relation(fields: [applicantId], references: [id])
+  reviewer        Reviewer?    @relation(fields: [reviewerId], references: [id])
+}
+
+model Document {
+  id                   String       @id @default(uuid())
+  caseId               String
+  type                 DocumentType
+  encryptedStoragePath String
+  uploadedAt           DateTime     @default(now())
+  verifiedAt           DateTime?
+
+  verificationCase     VerificationCase @relation(fields: [caseId], references: [id])
+}
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  entityType    String
+  entityId      String
+  action        String
+  actorId       String?
+  actorRole     ActorRole
+  previousState Json?
+  newState      Json?
+  ipAddress     String?
+  createdAt     DateTime  @default(now())
+}

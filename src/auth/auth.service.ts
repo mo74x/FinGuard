@@ -108,16 +108,12 @@ export class AuthService {
     return this.generateTokens({ sub: user.id, email: user.email, role });
   }
 
-  /**
-   * Logs out the user by deleting their refresh token from Redis.
-   */
+  //Logs out the user by deleting their refresh token from Redis.
   async logout(userId: string) {
     await this.redis.del(`refresh_token:${userId}`);
   }
 
-  /**
-   * Core Token Generator
-   */
+  // Core Token Generator
   private async generateTokens(payload: TokenPayload) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {

@@ -16,6 +16,7 @@ import type { Response } from 'express';
 import { DocumentsService } from './documents.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CaseOwnershipGuard } from '../common/guards/case-ownership.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { DocumentType } from '../../generated/prisma/client';
 
@@ -24,7 +25,7 @@ export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Post(':id/documents')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, CaseOwnershipGuard)
   @Roles('APPLICANT')
   @UseInterceptors(FileInterceptor('file')) // memory storage
   async uploadDocument(
@@ -41,7 +42,7 @@ export class DocumentsController {
   }
 
   @Get(':id/documents/:documentId/signed-url')
-  @UseGuards(JwtAuthGuard) // Will require Ownership or Reviewer guard later
+  @UseGuards(JwtAuthGuard, CaseOwnershipGuard)
   async getSignedUrl(@Param('documentId') documentId: string) {
     const signedUrl = await this.documentsService.generateSignedUrl(documentId);
     return { data: { url: signedUrl }, error: null };

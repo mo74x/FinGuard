@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
@@ -5,9 +6,9 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { HashUtil } from './utils/hash.util';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma/client';
 import Redis from 'ioredis';
-import { randomBytes } from 'crypto';
+//import { randomBytes } from 'crypto';
 import { EnvConfig } from '../config/env.validation';
 import { RegisterApplicantDto, LoginDto } from './dto/auth.dto';
 
